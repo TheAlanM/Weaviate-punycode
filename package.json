@@ -1,0 +1,29 @@
+{
+  "name": "weaviate-punycode-check",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Install the Weaviate TypeScript client and verify whether it triggers the deprecated punycode Node.js warning.",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "check:punycode": "node --trace-deprecation --import tsx src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "weaviate-client": "^3.9.0"
+  },
+  "overrides": {
+    "graphql-request": "^7.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.39.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.46.0"
+  }
+}
