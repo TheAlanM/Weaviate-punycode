@@ -4,12 +4,13 @@
  * `punycode` module.
  *
  * Node emits `[DEP0040] DeprecationWarning: The punycode module is deprecated`
- * the first time the built-in `punycode` module is loaded from user code.
- * Inside the client this only happens via transitive deps:
- *   weaviate-client -> graphql-request -> cross-fetch -> node-fetch@2
+ * the first time the built-in `punycode` module is loaded. With
+ * `graphql-request@6` the client reaches it via transitive deps:
+ *   weaviate-client -> graphql-request@6 -> cross-fetch -> node-fetch@2
  *   -> whatwg-url@5 -> tr46@0.0.3 (both `require("punycode")`).
- * Modern Node suppresses DEP0040 when the require originates inside
- * `node_modules`, so end users of the client do not see it (see README notes).
+ * On common Node builds (e.g. 21.x, 22.22.x) this warning surfaces to users.
+ * Forcing `graphql-request@7` (native fetch, no cross-fetch/node-fetch chain)
+ * removes those deps and the warning disappears. See README / AGENTS.md.
  *
  * We register a `process.on('warning')` listener BEFORE importing the client to
  * capture any warning, then run a real create/insert/query round-trip.
@@ -82,8 +83,8 @@ async function main(): Promise<void> {
   }
   console.log(
     punycodeWarnings.length > 0
-      ? 'RESULT: punycode deprecation warning surfaced to the user.'
-      : 'RESULT: no punycode deprecation warning surfaced (deps require it from inside node_modules, which Node suppresses).',
+      ? 'RESULT: punycode (DEP0040) deprecation warning surfaced to the user.'
+      : 'RESULT: no punycode (DEP0040) deprecation warning surfaced.',
   );
 }
 

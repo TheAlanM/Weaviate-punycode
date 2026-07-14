@@ -27,9 +27,19 @@ Standard commands live in `package.json` scripts (`start`, `build`, `typecheck`,
   The client reads `WEAVIATE_HOST`/`WEAVIATE_HTTP_PORT`/`WEAVIATE_GRPC_PORT` env vars.
 - `npm run build`, `npm run typecheck`, `npm run lint`, and the two non-network
   test cases run with no server and no Docker.
-- Punycode finding: `weaviate-client` only reaches the built-in `punycode` via
-  transitive deps inside `node_modules` (`whatwg-url@5` / `tr46@0.0.3`). Modern
-  Node suppresses `DEP0040` for `require("punycode")` calls that originate inside
-  `node_modules`, so end users of the client do NOT see the warning; it only
-  appears when `require('punycode')` is called from user code outside
-  `node_modules`.
+- Punycode finding: with `graphql-request@6` (weaviate-client's default),
+  `weaviate-client` pulls in `graphql-request@6 -> cross-fetch -> node-fetch@2 ->
+  whatwg-url@5 -> tr46@0.0.3`, which `require("punycode")` (the deprecated
+  built-in) and surface `DEP0040` to end users on common Node builds
+  (e.g. 21.x, 22.22.x). This repo forces `graphql-request@7` via the `overrides`
+  field; v7 uses the native `fetch`, drops the `cross-fetch/node-fetch/whatwg-url/tr46`
+  chain, and the warning no longer appears.
+- Node version caveat: whether `DEP0040` prints for a `require("punycode")` that
+  originates inside `node_modules` varies by Node build. It prints on nvm's
+  v22.22.2 and v21.7.3 here, but the `/exec-daemon/node` v22.14.0 build on `PATH`
+  suppresses it. To reproduce the warning, run with a nvm build, e.g.
+  `~/.nvm/versions/node/v22.22.2/bin/node --import tsx src/index.ts`.
+- Note: `graphql-request@7` is an API-breaking major vs the `@6` that
+  `weaviate-client@3` declares; the hello-world round-trip still passes, but the
+  override should be validated against the client's GraphQL code paths before
+  relying on it as a real fix.

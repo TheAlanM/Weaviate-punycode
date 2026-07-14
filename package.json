@@ -15,6 +15,9 @@
   "dependencies": {
     "weaviate-client": "^3.9.0"
   },
+  "overrides": {
+    "graphql-request": "^7.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@types/node": "^22.10.0",
